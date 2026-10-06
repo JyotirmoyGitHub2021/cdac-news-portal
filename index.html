@@ -4,132 +4,158 @@
     <meta charset="UTF-8">
     <title>Windows C-DAC News Portal</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #eef2f3; 
-            margin: 40px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #eef2f3; margin: 40px; }
         h1, h2 { color: #2c3e50; border-bottom: 2px solid #34495e; padding-bottom: 10px; }
-        
-        /* ফর্মের ডিজাইন */
-        .form-container {
-            background: #fff; padding: 20px; border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px;
+        .form-container, .login-container {
+            background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px;
         }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
-        }
-        .submit-btn {
-            background-color: #2ecc71; color: white; border: none; padding: 10px 20px;
-            font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%;
-        }
-        .submit-btn:hover { background-color: #27ae60; }
-
-        /* নিউজ কার্ড ও ফ্লেক্স লেআউট (ডিলিট বোতাম ডানদিকে রাখার জন্য) */
-        .news-card { 
-            background: white; padding: 20px; margin: 15px 0; 
-            border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .category-badge {
-            background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;
-        }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .submit-btn { background-color: #2ecc71; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; }
+        .login-btn { background-color: #34495e; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; }
+        .news-card { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .category-badge { background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .delete-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         
-        /* ডিলিট বোতামের লাল ডিজাইন */
-        .delete-btn {
-            background-color: #e74c3c; color: white; border: none; padding: 8px 15px;
-            border-radius: 4px; cursor: pointer; font-weight: bold;
-        }
-        .delete-btn:hover { background-color: #c0392b; }
+        /* প্রাথমিকভাবে অ্যাডমিন প্যানেল লুকিয়ে রাখার জন্য */
+        #adminPanel { display: none; }
+        #logoutBtn { background-color: #e67e22; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; float: right; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="form-container">
-        <h2>নতুন খবর যুক্ত করুন</h2>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+    <h1>আজকের তাজা খবর</h1>
+
+    <!-- লগইন ফর্ম (সবাই প্রথমে এটি দেখবে) -->
+    <div class="login-container" id="loginPanel">
+        <h2>অ্যাডমিন লগইন (শুধু ডেটা পরিবর্তন করার জন্য)</h2>
+        <div class="form-group">
+            <label>ইউজারনেম (Username):</label>
+            <input type="text" id="username" placeholder="admin">
+        </div>
+        <div class="form-group">
+            <label>পাসওয়ার্ড (Password):</label>
+            <input type="password" id="password" placeholder="******">
+        </div>
+        <button class="login-btn" onclick="login()">লগইন করুন</button>
+    </div>
+
+    <!-- গোপন অ্যাডমিন প্যানেল -->
+    <div class="form-container" id="adminPanel">
+        <h2>নতুন খবর যুক্ত করুন (অ্যাডমিন মোড)</h2>
         <form id="newsForm">
             <div class="form-group">
-                <label for="title">খবরের শিরোনাম (Title):</label>
-                <input type="text" id="title" placeholder="এখানে শিরোনাম লিখুন..." required>
+                <label for="title">খবরের শিরোনাম:</label>
+                <input type="text" id="title" required>
             </div>
             <div class="form-group">
-                <label for="category">ক্যাটাগরি (Category):</label>
+                <label for="category">ক্যাটাগরি:</label>
                 <select id="category">
                     <option value="West Bengal Jobs">West Bengal Jobs</option>
                     <option value="IT Jobs">IT Jobs</option>
-                    <option value="Central Govt Jobs">Central Govt Jobs</option>
                 </select>
             </div>
             <button type="submit" class="submit-btn">সাবমিট করুন</button>
         </form>
     </div>
 
-    <h1>আজকের তাজা খবর</h1>
     <div id="news-container">খবর লোড হচ্ছে...</div>
 
     <script>
         const container = document.getElementById('news-container');
+        
+        // ব্রাউজারের মেমরিতে টোকেন আছে কি না চেক করা
+        function getAuthToken() { return localStorage.getItem('adminToken'); }
 
-        // ১. সার্ভার থেকে সব খবর তুলে আনা (GET)
+        function checkAdminStatus() {
+            const token = getAuthToken();
+            if (token) {
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('loginPanel').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'block';
+            } else {
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('loginPanel').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'none';
+            }
+        }
+
+        // ১. খবর লোড করা
         function loadNews() {
             fetch('/news')
                 .then(response => response.json())
                 .then(result => {
                     container.innerHTML = '';
+                    const token = getAuthToken();
                     result.data.forEach(item => {
+                        // যদি অ্যাডমিন লগইন থাকে তবেই ডিলিট বোতাম দেখাবে
+                        const deleteBtn = token ? `<button class="delete-btn" onclick="deleteArticle(${item.id})">Delete</button>` : '';
                         container.innerHTML += `
                             <div class="news-card">
                                 <div>
                                     <h3>${item.title}</h3>
                                     <span class="category-badge">${item.category}</span>
                                 </div>
-                                <!-- ডিলিট বোতাম যুক্ত করা হলো, যা আইটেমের ID পাস করবে -->
-                                <button class="delete-btn" onclick="deleteArticle(${item.id})">Delete</button>
+                                ${deleteBtn}
                             </div>`;
                     });
-                })
-                .catch(err => container.innerHTML = "এরর: " + err.message);
+                });
         }
 
-        loadNews();
+        // ২. লগইন ফাংশন
+        function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
 
-        // ২. ফর্ম সাবমিট ও ডেটা পাঠানো (POST)
-        document.getElementById('newsForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const titleInput = document.getElementById('title').value;
-            const categoryInput = document.getElementById('category').value;
-
-            fetch('/news', {
+            fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: titleInput, category: categoryInput })
+                body: JSON.stringify({ username: u, password: p })
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
+                    localStorage.setItem('adminToken', data.token); // ব্রাউজারে টোকেন সেভ
+                    checkAdminStatus();
                     loadNews();
-                    document.getElementById('title').value = '';
-                }
-            });
+                } else { alert(data.message); }
+            }).catch(() => alert("লগইন ব্যর্থ!"));
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            checkAdminStatus();
+            loadNews();
+        }
+
+        // ৩. খবর যুক্ত করা (টোকেনসহ)
+        document.getElementById('newsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch('/news', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': getAuthToken() },
+                body: JSON.stringify({ title: document.getElementById('title').value, category: document.getElementById('category').value })
+            })
+            .then(res => res.json())
+            .then(() => { loadNews(); document.getElementById('title').value = ''; });
         });
 
-        // ৩. নির্দিষ্ট খবর ডিলিট করার ফাংশন (DELETE)
+        // ৪. ডিলিট করা (টোকেনসহ)
+        document.getElementById('delete-btn');
         function deleteArticle(id) {
-            if(confirm("আপনি কি সত্যিই এই খবরটি ডিলিট করতে চান?")) {
+            if(confirm("ডিলিট করতে চান?")) {
                 fetch(`/news/${id}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: { 'Authorization': getAuthToken() }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.status === 'success') {
-                        loadNews(); // ডিলিট হওয়ার পর পেজ রিফ্রেশ না করেই লিস্ট আপডেট করা
-                    }
-                })
-                .catch(err => alert("ডিলিট করা যায়নি: " + err.message));
+                .then(() => loadNews());
             }
         }
+
+        checkAdminStatus();
+        loadNews();
     </script>
 </body>
 </html>
